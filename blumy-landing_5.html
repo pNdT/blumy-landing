@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>blumy — A IA que te entende</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0a0f1a;
+  --bg2:#101828;
+  --bg3:#0d1520;
+  --teal:#2dd4bf;
+  --teal-dim:#1a9e8e;
+  --purple:#8b5cf6;
+  --text:#f1f5f9;
+  --muted:#64748b;
+  --muted2:#94a3b8;
+  --border:rgba(255,255,255,0.06);
+  --border-t:rgba(45,212,191,0.2);
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none;}
+.cursor{position:fixed;width:10px;height:10px;background:var(--teal);border-radius:50%;pointer-events:none;z-index:9999;transition:transform 0.15s ease;mix-blend-mode:screen;}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(45,212,191,0.4);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.1s ease;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.2rem 3rem;display:flex;align-items:center;justify-content:space-between;background:rgba(10,15,26,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--teal);letter-spacing:-0.02em;display:flex;align-items:center;gap:0.5rem;text-decoration:none;}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{text-decoration:none;color:var(--muted2);font-size:0.875rem;transition:color 0.3s;}
+.nav-links a:hover{color:var(--teal);}
+.nav-cta{background:var(--teal) !important;color:#0a0f1a !important;padding:0.6rem 1.4rem;border-radius:8px;font-weight:600 !important;transition:all 0.3s !important;}
+.nav-cta:hover{background:#5eead4 !important;box-shadow:0 0 20px rgba(45,212,191,0.4) !important;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;}
+.blob{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;}
+.blob-teal{width:600px;height:600px;background:radial-gradient(circle,rgba(45,212,191,0.1) 0%,transparent 70%);top:-150px;left:-100px;}
+.blob-purple{width:500px;height:500px;background:radial-gradient(circle,rgba(139,92,246,0.08) 0%,transparent 70%);bottom:0;left:30%;}
+.hero-lily{
+  position:absolute;
+  left:-720px; /* starts fully offscreen */
+  top:50%;
+  transform:translateY(-50%);
+  width:58%;max-width:720px;
+  z-index:1;
+  animation:lilySlideIn 1.6s cubic-bezier(0.16,1,0.3,1) 0.2s forwards, floatUpDown 6s ease-in-out 2.2s infinite;
+}
+/* stem draws after lily slides in */
+.s1{stroke-dasharray:700;stroke-dashoffset:700;animation:draw 2s cubic-bezier(0.4,0,0.2,1) 1.2s forwards;}
+.s2{stroke-dasharray:400;stroke-dashoffset:400;animation:draw 1.4s ease 1.8s forwards;}
+.s3{stroke-dasharray:350;stroke-dashoffset:350;animation:draw 1.3s ease 2s forwards;}
+.l1{opacity:0;transform-origin:200px 335px;animation:bloom 0.7s ease 2.3s forwards;}
+.l2{opacity:0;transform-origin:290px 270px;animation:bloom 0.6s ease 2.5s forwards;}
+.l3{opacity:0;transform-origin:150px 390px;animation:bloom 0.6s ease 2.6s forwards;}
+.l4{opacity:0;transform-origin:330px 244px;animation:bloom 0.6s ease 2.8s forwards;}
+.p1{opacity:0;animation:bloom 0.6s ease 3s forwards;}
+.p2{opacity:0;animation:bloom 0.6s ease 3.15s forwards;}
+.p3{opacity:0;animation:bloom 0.6s ease 3.3s forwards;}
+.p4{opacity:0;animation:bloom 0.6s ease 3.45s forwards;}
+.p5{opacity:0;animation:bloom 0.6s ease 3.6s forwards;}
+.p6{opacity:0;animation:bloom 0.5s ease 3.75s forwards;}
+.p7{opacity:0;animation:bloom 0.5s ease 3.1s forwards;}
+.p8{opacity:0;animation:bloom 0.5s ease 3.35s forwards;}
+.p9{opacity:0;animation:bloom 0.5s ease 3.9s forwards;}
+.ls{animation:sway 5s ease-in-out infinite;}
+.hero-text{position:relative;z-index:2;margin-left:auto;margin-right:5rem;max-width:460px;opacity:0;transform:translateX(30px);animation:slideIn 1s ease 1.6s forwards;}
+.hero-eyebrow{font-size:0.7rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal);margin-bottom:1.2rem;display:flex;align-items:center;gap:0.6rem;}
+.hero-eyebrow::before{content:'';width:20px;height:1px;background:var(--teal);}
+.hero-name{font-family:'Syne',sans-serif;font-size:clamp(4rem,8vw,7rem);font-weight:800;color:var(--teal);letter-spacing:-0.04em;line-height:0.9;margin-bottom:0.4rem;text-shadow:0 0 80px rgba(45,212,191,0.25);}
+.hero-tagline{font-family:'Syne',sans-serif;font-size:clamp(0.85rem,1.4vw,1.1rem);font-weight:500;color:var(--muted2);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1.5rem;}
+.hero-desc{font-size:0.95rem;font-weight:300;color:var(--muted2);line-height:1.8;margin-bottom:2.5rem;border-left:2px solid var(--teal-dim);padding-left:1rem;}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;}
+.btn-main{background:var(--teal);color:#0a0f1a;border:none;padding:0.9rem 2rem;border-radius:8px;font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;cursor:none;transition:all 0.3s;text-decoration:none;}
+.btn-main:hover{background:#5eead4;box-shadow:0 0 30px rgba(45,212,191,0.5);transform:translateY(-2px);}
+.btn-outline{background:transparent;color:var(--muted2);border:1px solid var(--border-t);padding:0.9rem 1.8rem;border-radius:8px;font-size:0.875rem;cursor:none;transition:all 0.3s;text-decoration:none;}
+.btn-outline:hover{color:var(--teal);border-color:var(--teal);}
+.badge-strip{display:flex;gap:0.7rem;flex-wrap:wrap;margin-top:2rem;}
+.badge{font-size:0.68rem;font-weight:500;padding:0.28rem 0.75rem;border-radius:100px;letter-spacing:0.05em;border:1px solid;}
+.badge-t{background:rgba(45,212,191,0.07);color:var(--teal);border-color:rgba(45,212,191,0.2);}
+.badge-p{background:rgba(139,92,246,0.07);color:#a78bfa;border-color:rgba(139,92,246,0.2);}
+
+/* SECTIONS */
+section{position:relative;z-index:1;}
+.section-wrap{max-width:1100px;margin:0 auto;padding:7rem 3rem;}
+.section-chip{display:inline-flex;align-items:center;gap:0.5rem;font-size:0.68rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.14);padding:0.35rem 0.9rem;border-radius:100px;margin-bottom:1.5rem;}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;line-height:1.15;margin-bottom:1rem;letter-spacing:-0.02em;}
+.hl{color:var(--teal);}
+.hp{color:#a78bfa;}
+.section-sub{color:var(--muted2);font-size:0.95rem;font-weight:300;line-height:1.8;max-width:560px;margin-bottom:3rem;}
+
+/* PROMPT SECTION */
+.prompt-section{background:var(--bg2);}
+.prompt-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--teal-dim),transparent);}
+.prompt-grid{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:start;}
+.prompt-cards{display:flex;flex-direction:column;gap:1rem;}
+.prompt-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;transition:border-color 0.3s,background 0.3s;}
+.prompt-card:hover{border-color:rgba(45,212,191,0.2);background:rgba(45,212,191,0.02);}
+.pc-num{font-size:0.62rem;font-weight:600;letter-spacing:0.15em;color:var(--teal);margin-bottom:0.35rem;text-transform:uppercase;}
+.pc-title{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:600;margin-bottom:0.35rem;}
+.pc-desc{font-size:0.82rem;color:var(--muted2);line-height:1.65;font-weight:300;}
+.terminal{background:#06090f;border:1px solid rgba(45,212,191,0.18);border-radius:14px;overflow:hidden;box-shadow:0 0 60px rgba(45,212,191,0.05);}
+.terminal-bar{background:#0d1520;padding:0.75rem 1rem;display:flex;align-items:center;gap:0.5rem;border-bottom:1px solid var(--border);}
+.dot-r{width:10px;height:10px;border-radius:50%;background:#ff5f57;}
+.dot-y{width:10px;height:10px;border-radius:50%;background:#febc2e;}
+.dot-g{width:10px;height:10px;border-radius:50%;background:#28c840;}
+.ttitle{margin:0 auto;font-size:0.68rem;color:var(--muted);letter-spacing:0.08em;}
+.terminal-body{padding:1.5rem;}
+.tl{font-family:monospace;font-size:0.8rem;line-height:2;display:flex;gap:0.5rem;}
+.tc{color:var(--teal);}
+.tr{color:#f87171;}
+.tg{color:#86efac;}
+.tm{color:var(--muted);}
+.tarrow{display:flex;align-items:center;gap:0.5rem;margin:0.4rem 0;color:var(--muted);font-size:0.73rem;font-family:monospace;}
+.tblock{background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.1);border-radius:8px;padding:0.8rem;font-family:monospace;font-size:0.7rem;line-height:1.9;}
+.tlabel-t{color:var(--teal);}
+.tlabel-p{color:#a78bfa;}
+.tval{color:var(--muted2);padding-left:0.5rem;}
+.tdivider{height:1px;background:var(--border);margin:1.1rem 0;}
+
+/* BLUMY DOES */
+.blumy-section{background:var(--bg);}
+.flow-wrapper{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:0.5rem;}
+.flow-step{background:var(--bg);padding:2rem;transition:background 0.3s;}
+.flow-step:hover{background:rgba(45,212,191,0.02);}
+.flow-num{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:rgba(45,212,191,0.07);line-height:1;margin-bottom:0.5rem;transition:color 0.3s;}
+.flow-step:hover .flow-num{color:rgba(45,212,191,0.18);}
+.flow-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:1rem;border:1px solid var(--border);}
+.fi-t{background:rgba(45,212,191,0.07);border-color:rgba(45,212,191,0.14);}
+.fi-p{background:rgba(139,92,246,0.07);border-color:rgba(139,92,246,0.14);}
+.flow-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;margin-bottom:0.5rem;}
+.flow-desc{font-size:0.82rem;color:var(--muted2);line-height:1.7;font-weight:300;}
+.block-example{margin-top:2.5rem;background:rgba(45,212,191,0.02);border:1px solid rgba(45,212,191,0.1);border-radius:16px;padding:2rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+.block-tag{background:rgba(10,15,26,0.8);border:1px solid var(--border);border-radius:10px;padding:1rem;transition:border-color 0.3s,transform 0.3s;}
+.block-tag:hover{border-color:rgba(45,212,191,0.25);transform:translateY(-4px);}
+.blabel{font-family:'Syne',sans-serif;font-size:0.68rem;font-weight:700;color:var(--teal);letter-spacing:0.1em;margin-bottom:0.4rem;text-transform:uppercase;}
+.blabel-p{color:#a78bfa;}
+.bcontent{font-size:0.77rem;color:var(--muted2);line-height:1.6;font-weight:300;}
+
+/* PLANS */
+.plans-section{background:var(--bg2);}
+.plans-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(139,92,246,0.4),transparent);}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+.plan-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:16px;padding:2rem;position:relative;transition:border-color 0.3s,transform 0.3s;}
+.plan-card:hover{transform:translateY(-4px);}
+.plan-card.featured{border-color:rgba(45,212,191,0.28);background:rgba(45,212,191,0.03);}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--teal);color:#0a0f1a;font-size:0.62rem;font-weight:700;padding:0.22rem 0.85rem;border-radius:100px;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;}
+.plan-name{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:0.3rem;}
+.plan-credits{font-size:2rem;font-weight:700;font-family:'Syne',sans-serif;color:var(--teal);line-height:1;margin-bottom:0.25rem;}
+.plan-credits span{font-size:0.85rem;color:var(--muted);font-weight:400;}
+.plan-desc{font-size:0.78rem;color:var(--muted2);margin-bottom:1.3rem;font-weight:300;}
+.plan-div{height:1px;background:var(--border);margin-bottom:1.3rem;}
+.pf{font-size:0.78rem;color:var(--muted2);margin-bottom:0.55rem;display:flex;align-items:center;gap:0.45rem;font-weight:300;}
+.pf::before{content:'✦';color:var(--teal);font-size:0.5rem;flex-shrink:0;}
+.plan-btn{width:100%;margin-top:1.3rem;padding:0.75rem;border-radius:8px;border:none;font-family:'Syne',sans-serif;font-size:0.875rem;font-weight:600;cursor:none;transition:all 0.3s;}
+.pb-main{background:var(--teal);color:#0a0f1a;}
+.pb-main:hover{background:#5eead4;box-shadow:0 0 20px rgba(45,212,191,0.4);}
+.pb-out{background:transparent;color:var(--muted2);border:1px solid var(--border-t);}
+.pb-out:hover{color:var(--teal);border-color:var(--teal);}
+.plan-price{font-size:0.75rem;color:var(--muted);margin-top:0.5rem;text-align:center;}
+
+/* CTA FINAL */
+.cta-final{background:var(--bg);text-align:center;}
+.cta-final .section-wrap{padding:6rem 3rem 4rem;}
+.cta-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:500px;border-radius:50%;border:1px solid rgba(45,212,191,0.05);pointer-events:none;}
+.cta-actions{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;}
+
+/* FOOTER */
+footer{background:var(--bg3);border-top:1px solid var(--border);padding:2.5rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.footer-logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--teal);}
+.footer-links{display:flex;gap:2rem;list-style:none;flex-wrap:wrap;}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:0.78rem;transition:color 0.3s;}
+.footer-links a:hover{color:var(--teal);}
+.footer-ig{display:flex;align-items:center;gap:0.5rem;color:var(--muted2);font-size:0.8rem;text-decoration:none;transition:color 0.3s;}
+.footer-ig:hover{color:var(--teal);}
+.ig-icon{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#fff;}
+.footer-copy{color:var(--muted);font-size:0.73rem;}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+
+/* PARTICLES */
+.particle{position:absolute;border-radius:50%;pointer-events:none;animation:particleDrift linear infinite;}
+
+/* KEYFRAMES */
+@keyframes draw{to{stroke-dashoffset:0;}}
+@keyframes bloom{from{opacity:0;transform:scale(0.2);}to{opacity:1;transform:scale(1);}}
+@keyframes sway{0%,100%{transform:rotate(-7deg);}50%{transform:rotate(7deg);}}
+@keyframes lilySlideIn{
+  from{left:-720px;}
+  to{left:-40px;}
+}
+@keyframes floatUpDown{
+  0%,100%{transform:translateY(-50%);}
+  50%{transform:translateY(calc(-50% - 14px));}
+}
+@keyframes slideIn{to{opacity:1;transform:none;}}
+@keyframes particleDrift{0%{opacity:0;transform:translateY(0);}20%{opacity:0.8;}80%{opacity:0.8;}100%{opacity:0;transform:translateY(-100px);}}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="ring"></div>
+
+<nav>
+  <a href="#" class="logo">
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+      <path d="M13 22C13 22 7 18 7 12.5C7 9.5 9.5 7 13 7" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M13 7C16.5 7 19 9.5 19 12.5C19 18 13 22 13 22" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="13" cy="6.5" r="2.5" fill="none" stroke="#2dd4bf" stroke-width="1.2"/>
+      <line x1="13" y1="3" x2="13" y2="4" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="10.5" y1="4" x2="11.2" y2="5" stroke="#2dd4bf" stroke-width="1" stroke-linecap="round"/>
+      <line x1="15.5" y1="4" x2="14.8" y2="5" stroke="#2dd4bf" stroke-width="1" stroke-linecap="round"/>
+      <line x1="9" y1="12.5" x2="17" y2="12.5" stroke="#2dd4bf" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.4"/>
+    </svg>
+    blumy
+  </a>
+  <ul class="nav-links">
+    <li><a href="#prompt">O que é um prompt?</a></li>
+    <li><a href="#funciona">Como funciona</a></li>
+    <li><a href="#planos">Planos</a></li>
+    <li><a href="https://blumy.tech" target="_blank" class="nav-cta">Começar grátis</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="blob blob-teal"></div>
+  <div class="blob blob-purple"></div>
+  <div id="particles"></div>
+
+  <!-- LILY diagonal from left -->
+  <svg class="hero-lily" viewBox="0 0 720 520" xmlns="http://www.w3.org/2000/svg">
+    <!-- Main stem: bottom-left → top-right diagonal -->
+    <path class="s1"
+      d="M 10 510 C 80 440 170 370 260 300 C 340 238 410 195 450 155"
+      stroke="#2dd4bf" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.75"/>
+    <!-- Branch left -->
+    <path class="s2"
+      d="M 240 315 C 255 280 270 248 278 218"
+      stroke="#2dd4bf" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+    <!-- Branch right -->
+    <path class="s3"
+      d="M 380 215 C 395 190 410 170 420 150"
+      stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+
+    <!-- Leaves -->
+    <g class="l1 ls" style="animation-delay:0s;">
+      <path d="M 200 340 Q 162 305 142 268 Q 178 276 200 340" fill="#2dd4bf" opacity="0.22"/>
+    </g>
+    <g class="l2 ls" style="animation-delay:1.2s;">
+      <path d="M 295 268 Q 326 240 356 230 Q 342 258 295 268" fill="#2dd4bf" opacity="0.18"/>
+    </g>
+    <g class="l3 ls" style="animation-delay:0.6s;">
+      <path d="M 148 392 Q 112 368 95 338 Q 130 345 148 392" fill="#2dd4bf" opacity="0.16"/>
+    </g>
+    <g class="l4 ls" style="animation-delay:1.8s;">
+      <path d="M 332 244 Q 365 218 392 210 Q 378 235 332 244" fill="#8b5cf6" opacity="0.18"/>
+    </g>
+
+    <!-- MAIN LILY at ~(450,155) -->
+    <g style="transform-origin:450px 155px;">
+      <path class="p1" d="M 450 155 C 432 122 408 100 418 74 C 428 48 450 64 450 155" fill="#2dd4bf" opacity="0.75"/>
+      <path class="p2" d="M 450 155 C 468 122 492 100 482 74 C 472 48 450 64 450 155" fill="#8b5cf6" opacity="0.75"/>
+      <path class="p3" d="M 450 155 C 418 140 394 124 386 98 C 378 72 406 68 450 155" fill="#2dd4bf" opacity="0.6"/>
+      <path class="p4" d="M 450 155 C 482 140 506 124 514 98 C 522 72 494 68 450 155" fill="#8b5cf6" opacity="0.6"/>
+      <path class="p5" d="M 450 155 C 434 118 426 92 434 70 C 440 52 450 60 450 155" fill="#5eead4" opacity="0.45"/>
+      <path class="p6" d="M 450 155 C 466 118 474 92 466 70 C 460 52 450 60 450 155" fill="#a78bfa" opacity="0.45"/>
+    </g>
+    <!-- Center + stamens -->
+    <g class="p6">
+      <circle cx="450" cy="124" r="15" fill="rgba(6,9,15,0.85)" stroke="#2dd4bf" stroke-width="1" opacity="0.95"/>
+      <circle cx="450" cy="124" r="6" fill="#2dd4bf" opacity="0.9"/>
+      <line x1="450" y1="124" x2="446" y2="106" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="450" y1="124" x2="452" y2="104" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="450" y1="124" x2="457" y2="108" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="446" cy="104" r="2.5" fill="#8b5cf6"/>
+      <circle cx="452" cy="102" r="2.5" fill="#8b5cf6"/>
+      <circle cx="458" cy="106" r="2.5" fill="#8b5cf6"/>
+      <!-- glow -->
+      <circle cx="450" cy="124" r="55" fill="rgba(45,212,191,0.04)"/>
+    </g>
+
+    <!-- SMALL LILY at (278,218) -->
+    <g style="transform-origin:278px 218px;">
+      <path class="p7" d="M 278 218 C 266 196 250 182 257 165 C 264 148 278 158 278 218" fill="#2dd4bf" opacity="0.55"/>
+      <path class="p7" d="M 278 218 C 290 196 306 182 299 165 C 292 148 278 158 278 218" fill="#8b5cf6" opacity="0.55"/>
+      <path class="p7" d="M 278 218 C 258 207 240 194 235 177 C 230 160 252 157 278 218" fill="#2dd4bf" opacity="0.42"/>
+      <path class="p7" d="M 278 218 C 298 207 316 194 321 177 C 326 160 304 157 278 218" fill="#8b5cf6" opacity="0.42"/>
+      <circle class="p7" cx="278" cy="196" r="8" fill="#2dd4bf" opacity="0.75"/>
+    </g>
+
+    <!-- BUD at (420,150) -->
+    <g style="transform-origin:420px 148px;">
+      <path class="p8" d="M 420 148 C 410 130 398 118 404 104 C 410 90 420 98 420 148" fill="#a78bfa" opacity="0.6"/>
+      <path class="p8" d="M 420 148 C 430 130 442 118 436 104 C 430 90 420 98 420 148" fill="#5eead4" opacity="0.6"/>
+      <circle class="p8" cx="420" cy="128" r="7" fill="#8b5cf6" opacity="0.75"/>
+    </g>
+
+    <!-- Floating petals -->
+    <g class="p9">
+      <ellipse cx="375" cy="200" rx="7" ry="3" fill="#2dd4bf" transform="rotate(-35 375 200)" opacity="0.28"/>
+      <ellipse cx="500" cy="188" rx="5" ry="2.5" fill="#8b5cf6" transform="rotate(28 500 188)" opacity="0.28"/>
+      <ellipse cx="340" cy="268" rx="6" ry="2.5" fill="#2dd4bf" transform="rotate(-52 340 268)" opacity="0.22"/>
+      <ellipse cx="516" cy="228" rx="4" ry="2" fill="#a78bfa" transform="rotate(40 516 228)" opacity="0.22"/>
+      <ellipse cx="180" cy="425" rx="5" ry="2" fill="#2dd4bf" transform="rotate(-20 180 425)" opacity="0.18"/>
+    </g>
+  </svg>
+
+  <!-- Hero text RIGHT side -->
+  <div class="hero-text">
+    <div class="hero-eyebrow">Prompt Engineering para todos</div>
+    <div class="hero-name">blumy</div>
+    <div class="hero-tagline">A IA que te entende</div>
+    <p class="hero-desc">
+      Você digita uma ideia em linguagem simples. A blumy transforma em um comando preciso, otimizado para ChatGPT, Claude e Gemini — sem precisar ser expert.
+    </p>
+    <div class="hero-actions">
+      <a href="https://blumy.tech" target="_blank" class="btn-main">Começar grátis →</a>
+      <a href="#funciona" class="btn-outline">Ver como funciona</a>
+    </div>
+    <div class="badge-strip">
+      <span class="badge badge-t">ChatGPT</span>
+      <span class="badge badge-p">Claude</span>
+      <span class="badge badge-t">Gemini</span>
+      <span class="badge badge-p">3 créditos grátis</span>
+    </div>
+  </div>
+</section>
+
+<!-- O QUE É UM PROMPT -->
+<section class="prompt-section" id="prompt">
+  <div class="section-wrap">
+    <div class="prompt-grid">
+      <div>
+        <div class="section-chip reveal">✦ Educação</div>
+        <h2 class="section-title reveal">O que é um <span class="hl">prompt?</span></h2>
+        <p class="section-sub reveal">Um prompt é a instrução que você envia para uma IA. A diferença entre um resultado medíocre e um extraordinário está em como você pergunta.</p>
+        <div class="prompt-cards">
+          <div class="prompt-card reveal">
+            <div class="pc-num">01 — Sem estrutura</div>
+            <div class="pc-title">Resultado vago e genérico</div>
+            <div class="pc-desc">Ao escrever "me ajuda com marketing", a IA não tem contexto suficiente. O retorno é superficial e precisa de muita edição manual.</div>
+          </div>
+          <div class="prompt-card reveal">
+            <div class="pc-num">02 — Com prompt estruturado</div>
+            <div class="pc-title">Resultado preciso e acionável</div>
+            <div class="pc-desc">Com persona, tarefa, estrutura e contexto definidos, a IA gera exatamente o que você precisa — como um especialista dedicado ao seu problema.</div>
+          </div>
+          <div class="prompt-card reveal">
+            <div class="pc-num">03 — Com blumy</div>
+            <div class="pc-title">Você não precisa saber fazer isso</div>
+            <div class="pc-desc">A blumy estrutura tudo por você automaticamente. Digite sua ideia, responda 3 perguntas, receba o prompt perfeito. Simples assim.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="terminal">
+          <div class="terminal-bar">
+            <div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div>
+            <span class="ttitle">prompt comparison</span>
+          </div>
+          <div class="terminal-body">
+            <div class="tl"><span class="tr">❌</span><span class="tr">"me faz um email de vendas"</span></div>
+            <div class="tarrow"><span style="color:var(--muted);">↓</span> resultado sem contexto</div>
+            <div style="font-family:monospace;font-size:0.74rem;color:var(--muted);padding-left:1rem;line-height:1.7;">"Olá, temos uma ótima oferta para você. Entre em contato..."</div>
+            <div class="tdivider"></div>
+            <div class="tl"><span class="tc">✦</span><span class="tg">blumy · God Mode</span></div>
+            <div class="tarrow"><span style="color:var(--teal);">↓</span> prompt estruturado gerado</div>
+            <div class="tblock">
+              <div class="tlabel-t">[PERSONA]</div>
+              <div class="tval">Copywriter sênior especialista em B2B SaaS</div>
+              <div class="tlabel-p" style="margin-top:0.4rem;">[TAREFA]</div>
+              <div class="tval">Email cold outreach para CTOs de startups</div>
+              <div class="tlabel-t" style="margin-top:0.4rem;">[ESTRUTURA]</div>
+              <div class="tval">Hook de dor, problema, solução, CTA direto</div>
+              <div class="tlabel-p" style="margin-top:0.4rem;">[CONTEXTO]</div>
+              <div class="tval">Tom direto, sem rodeios, máx. 120 palavras</div>
+            </div>
+            <div style="margin-top:1rem;text-align:right;">
+              <span style="font-size:0.68rem;color:var(--teal);font-weight:500;letter-spacing:0.05em;">God Mode · 3 créditos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMO A BLUMY FUNCIONA -->
+<section class="blumy-section" id="funciona">
+  <div class="section-wrap">
+    <div class="section-chip reveal">✦ Como funciona</div>
+    <h2 class="section-title reveal">O que a <span class="hl">blumy</span> faz<br>por você</h2>
+    <p class="section-sub reveal">Um fluxo inteligente de 3 passos que transforma qualquer ideia vaga em um prompt de nível profissional — pronto para usar em qualquer IA.</p>
+
+    <div class="flow-wrapper">
+      <div class="flow-step reveal">
+        <div class="flow-num">01</div>
+        <div class="flow-icon fi-t">💬</div>
+        <div class="flow-title">Você digita sua ideia</div>
+        <div class="flow-desc">Sem pressão, sem jargão técnico. Escreva o que você quer da forma mais natural. Ex: "Quero criar conteúdo sobre finanças pessoais para jovens."</div>
+      </div>
+      <div class="flow-step reveal">
+        <div class="flow-num">02</div>
+        <div class="flow-icon fi-p">🧠</div>
+        <div class="flow-title">A IA te entrevista</div>
+        <div class="flow-desc">A blumy analisa sua intenção e gera 3 perguntas estratégicas para entender seu público, tom de voz e objetivo real — refinando o contexto com precisão.</div>
+      </div>
+      <div class="flow-step reveal">
+        <div class="flow-num">03</div>
+        <div class="flow-icon fi-t">⚡</div>
+        <div class="flow-title">Prompt pronto para usar</div>
+        <div class="flow-desc">Com base nas respostas, a blumy constrói um prompt robusto em blocos estruturados, pronto para copiar e colar no ChatGPT, Claude ou Gemini.</div>
+      </div>
+    </div>
+
+    <div class="block-example reveal">
+      <div class="block-tag">
+        <div class="blabel">[PERSONA]</div>
+        <div class="bcontent">Especialista com tom educativo e linguagem acessível para o público alvo</div>
+      </div>
+      <div class="block-tag">
+        <div class="blabel">[TAREFA]</div>
+        <div class="bcontent">Criar roteiro de vídeo curto de 60 segundos sobre o tema solicitado</div>
+      </div>
+      <div class="block-tag">
+        <div class="blabel">[ESTRUTURA]</div>
+        <div class="bcontent">Hook de impacto, 3 pontos principais, call to action final claro</div>
+      </div>
+      <div class="block-tag">
+        <div class="blabel blabel-p">[CONTEXTO]</div>
+        <div class="bcontent">Público 18–30 anos, plataforma Reels/TikTok, tom descontraído, evitar jargões</div>
+      </div>
+    </div>
+
+    <p style="text-align:center;color:var(--muted);font-size:0.76rem;margin-top:1.2rem;font-style:italic;">↑ Estrutura gerada automaticamente pelo God Mode da blumy</p>
+  </div>
+</section>
+
+<!-- PLANOS -->
+<section class="plans-section" id="planos">
+  <div class="section-wrap">
+    <div class="section-chip reveal">✦ Planos</div>
+    <h2 class="section-title reveal">Créditos simples,<br>resultados <span class="hp">poderosos</span></h2>
+    <p class="section-sub reveal">Comece com 3 créditos gratuitos. Sem assinatura — compre conforme usar, via Stripe.</p>
+
+    <div class="plans-grid">
+      <div class="plan-card reveal">
+        <div class="plan-name">Starter</div>
+        <div class="plan-credits">10 <span>créditos</span></div>
+        <div class="plan-desc">Para começar e explorar</div>
+        <div class="plan-div"></div>
+        <div class="pf">10 prompts Modo Básico</div>
+        <div class="pf">5 prompts Modo Avançado</div>
+        <div class="pf">3 prompts God Mode</div>
+        <div class="pf">Histórico de prompts</div>
+        <a href="https://blumy.tech" target="_blank" class="plan-btn pb-out" style="display:block;text-align:center;text-decoration:none;">Comprar via Stripe</a>
+      </div>
+
+      <div class="plan-card featured reveal">
+        <div class="plan-badge">MAIS POPULAR</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-credits">50 <span>créditos</span></div>
+        <div class="plan-desc">Para quem usa IA todo dia</div>
+        <div class="plan-div"></div>
+        <div class="pf">50 prompts Modo Básico</div>
+        <div class="pf">25 prompts Modo Avançado</div>
+        <div class="pf">16 prompts God Mode</div>
+        <div class="pf">Histórico completo</div>
+        <div class="pf">Exportar prompts</div>
+        <a href="https://blumy.tech" target="_blank" class="plan-btn pb-main" style="display:block;text-align:center;text-decoration:none;">Comprar via Stripe</a>
+      </div>
+
+      <div class="plan-card reveal">
+        <div class="plan-name">Power</div>
+        <div class="plan-credits">100 <span>créditos</span></div>
+        <div class="plan-desc">Para times e heavy users</div>
+        <div class="plan-div"></div>
+        <div class="pf">100 prompts Modo Básico</div>
+        <div class="pf">50 prompts Modo Avançado</div>
+        <div class="pf">33 prompts God Mode</div>
+        <div class="pf">Histórico ilimitado</div>
+        <div class="pf">Exportar + compartilhar</div>
+        <a href="https://blumy.tech" target="_blank" class="plan-btn pb-out" style="display:block;text-align:center;text-decoration:none;">Comprar via Stripe</a>
+      </div>
+    </div>
+
+    <p style="text-align:center;color:var(--muted);font-size:0.78rem;margin-top:2rem;">
+      Modo Básico = 1 crédito &nbsp;·&nbsp; Modo Avançado = 2 créditos &nbsp;·&nbsp; God Mode = 3 créditos
+    </p>
+    <p style="text-align:center;color:var(--teal);font-size:0.8rem;margin-top:0.5rem;font-weight:500;">
+      🎁 Ganhe 3 créditos grátis ao criar sua conta
+    </p>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="cta-ring"></div>
+  <div class="section-wrap">
+    <div class="section-chip reveal" style="display:inline-flex;margin-bottom:1.5rem;">✦ Comece agora</div>
+    <h2 class="section-title reveal" style="font-size:clamp(2.5rem,5vw,4rem);">Pare de lutar<br>com a <span class="hl">IA.</span></h2>
+    <p class="section-sub reveal" style="margin:0 auto 2.5rem;text-align:center;">Seus 3 créditos gratuitos estão esperando. Crie conta em 30 segundos e veja o God Mode em ação — sem cartão de crédito.</p>
+    <div class="cta-actions reveal">
+      <a href="https://blumy.tech" target="_blank" class="btn-main">Criar conta grátis →</a>
+      <a href="https://instagram.com/blumy.ai" target="_blank" class="btn-outline" style="display:flex;align-items:center;gap:0.5rem;">
+        <span>📸</span> @blumy.ai no Instagram
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">blumy</div>
+  <ul class="footer-links">
+    <li><a href="#prompt">O que é um prompt</a></li>
+    <li><a href="#funciona">Como funciona</a></li>
+    <li><a href="#planos">Planos</a></li>
+    <li><a href="#">Privacidade</a></li>
+    <li><a href="#">Termos</a></li>
+  </ul>
+  <a href="https://instagram.com/blumy.ai" target="_blank" class="footer-ig">
+    <div class="ig-icon">▶</div>
+    @blumy.ai
+  </a>
+  <p class="footer-copy">© 2026 blumy · Todos os direitos reservados</p>
+</footer>
+
+<script>
+const cursor=document.getElementById('cursor'), ring=document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cursor.style.left=(mx-5)+'px';cursor.style.top=(my-5)+'px';
+});
+setInterval(()=>{
+  rx+=(mx-rx)*0.14;ry+=(my-ry)*0.14;
+  ring.style.left=(rx-18)+'px';ring.style.top=(ry-18)+'px';
+},16);
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.transform='scale(2.5)';ring.style.transform='scale(1.4)';});
+  el.addEventListener('mouseleave',()=>{cursor.style.transform='scale(1)';ring.style.transform='scale(1)';});
+});
+
+// Particles in hero
+const pc=document.getElementById('particles');
+for(let i=0;i<20;i++){
+  const p=document.createElement('div');p.className='particle';
+  const sz=Math.random()*2.5+1;
+  const isPurple=Math.random()>0.5;
+  p.style.cssText=`width:${sz}px;height:${sz}px;background:${isPurple?'rgba(139,92,246,0.7)':'rgba(45,212,191,0.7)'};left:${Math.random()*100}%;top:${30+Math.random()*55}%;animation-duration:${6+Math.random()*8}s;animation-delay:${Math.random()*10}s;`;
+  pc.appendChild(p);
+}
+
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*75);obs.unobserve(e.target);}
+  });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
